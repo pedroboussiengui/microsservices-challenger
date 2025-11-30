@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres_microservices
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microservices
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isalready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+  rabbitmq:
+    image: rabbitmq:4.2-management
+    container_name: rabbitmq-microservices
+    ports:
+      - "5672:5672"     # porta para aplicações (AMQP)
+      - "15672:15672"   # Interface de administração
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
