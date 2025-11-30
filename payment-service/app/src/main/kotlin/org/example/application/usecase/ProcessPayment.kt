@@ -11,8 +11,8 @@ import java.util.UUID
 class ProcessPayment(
     private val publisher: MessagePublisher
 ) {
-    val delayTimeInMs = listOf(1000L, 3000L, 5000L, 4000L, 5000L)
-    val errorChance = 0 // 10% de chance de falhar
+    val delayTimeInMs = listOf(15000L)
+    val errorChance = 90
     val mockedReasons = listOf(
         "saldo insuficiente",
         "fraude suspeita",

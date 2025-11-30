@@ -6,11 +6,13 @@ import org.example.domain.Payment
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import java.util.UUID
 
 interface OrderRepository  {
     fun save(order: Order)
     fun findById(id: UUID): Order?
+    fun update(order: Order)
 }
 
 class PostgresOrderRepository : OrderRepository {
@@ -75,6 +77,18 @@ class PostgresOrderRepository : OrderRepository {
                     null
                 }
             )
+        }
+    }
+
+    override fun update(order: Order) {
+        transaction {
+            OrderModel.update({ OrderModel.id eq order.id }) {
+                it[status] = order.status
+                it[updatedAt] = order.updatedAt
+                it[paymentId] = order.payment?.payment
+                it[paymentStatus] = order.payment?.paymentStatus
+                it[processedAt] = order.payment?.processedAt
+            }
         }
     }
 }

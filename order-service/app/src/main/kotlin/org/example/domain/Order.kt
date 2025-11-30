@@ -37,17 +37,22 @@ class Order(
         }
     }
 
-    fun confirmOrder() = applyStatusTransition(OrderStatus.CONFIRMED)
-
-    fun failOrder() = applyStatusTransition(OrderStatus.FAILED)
-
-    fun cancelOrder() = applyStatusTransition(OrderStatus.CANCELLED)
-
-    private fun applyStatusTransition(newStatus: OrderStatus) {
-        status = newStatus
+    fun confirmOrder(paymentId: UUID, processedAt: Instant) {
+        status = OrderStatus.CONFIRMED
         updatedAt = Instant.now()
+        payment = Payment(paymentId, PaymentStatus.APPROVED, processedAt)
     }
 
+    fun failOrder(paymentId: UUID, processedAt: Instant) {
+        status = OrderStatus.FAILED
+        updatedAt = Instant.now()
+        payment = Payment(paymentId, PaymentStatus.REJECTED, processedAt)
+    }
+
+    fun cancelOrder() {
+        status = OrderStatus.CANCELLED
+        updatedAt = Instant.now()
+    }
 }
 
 
