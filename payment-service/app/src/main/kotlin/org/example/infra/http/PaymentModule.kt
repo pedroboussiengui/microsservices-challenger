@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.example.application.events.CreateOrderEvent
 import org.example.application.usecase.ProcessPayment
+import org.example.infra.database.PostgresPaymentRepository
 import org.example.infra.messaging.RabbitMessageConsumer
 import org.example.infra.messaging.RabbitMessagePublisher
 
@@ -20,8 +21,9 @@ fun Application.paymentModule() {
     val connection = factory.newConnection()
     val consumer = RabbitMessageConsumer(connection)
     val publisher = RabbitMessagePublisher(connection)
+    val paymentRepository = PostgresPaymentRepository()
 
-    val processPayment = ProcessPayment(publisher)
+    val processPayment = ProcessPayment(publisher, paymentRepository)
 
     CoroutineScope(Dispatchers.IO).launch {
         consumer.consume(

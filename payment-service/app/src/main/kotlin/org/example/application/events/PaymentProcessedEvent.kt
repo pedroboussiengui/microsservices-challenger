@@ -1,6 +1,7 @@
 package org.example.application.events
 
 import kotlinx.serialization.Serializable
+import org.example.domain.PaymentStatus
 import org.example.infra.http.InstantSerializer
 import org.example.infra.http.UUIDSerializer
 import java.time.Instant
@@ -17,7 +18,3 @@ data class PaymentProcessedEvent(
     val processedAt: Instant,
     val reason: String?
 )
-
-enum class PaymentStatus {
-    APPROVED, REJECTED
-}

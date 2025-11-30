@@ -21,6 +21,8 @@ repositories {
     mavenCentral()
 }
 
+val exposedVersion = "1.0.0-beta-1"
+
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
@@ -34,7 +36,12 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.21")
+
+    implementation("org.jetbrains.exposed:exposed-core:${exposedVersion}")
+    implementation("org.jetbrains.exposed:exposed-jdbc:${exposedVersion}")
+    implementation("org.jetbrains.exposed:exposed-java-time:${exposedVersion}")
+    implementation("org.postgresql:postgresql:42.7.8")
 
     implementation("com.rabbitmq:amqp-client:5.27.1")
 }

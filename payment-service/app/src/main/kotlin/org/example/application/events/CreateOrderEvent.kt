@@ -1,6 +1,7 @@
 package org.example.application.events
 
 import kotlinx.serialization.Serializable
+import org.example.domain.CurrenyType
 import org.example.infra.http.InstantSerializer
 import org.example.infra.http.UUIDSerializer
 import java.time.Instant
@@ -20,9 +21,3 @@ data class CreateOrderEvent(
     @Serializable(with = InstantSerializer::class)
     val timestamp: Instant
 )
-
-enum class CurrenyType {
-    BRL,
-    EUR,
-    USD
-}

@@ -3,17 +3,18 @@ package org.example.application.usecase
 import kotlinx.coroutines.delay
 import org.example.application.events.CreateOrderEvent
 import org.example.application.events.PaymentProcessedEvent
-import org.example.application.events.PaymentStatus
 import org.example.application.port.MessagePublisher
-import java.time.Instant
-import java.util.UUID
+import org.example.application.port.PaymentRepository
+import org.example.domain.Payment
+import org.example.domain.PaymentStatus
 
 class ProcessPayment(
-    private val publisher: MessagePublisher
+    private val publisher: MessagePublisher,
+    private val paymentRepository: PaymentRepository
 ) {
-    val delayTimeInMs = listOf(15000L)
-    val errorChance = 90
-    val mockedReasons = listOf(
+    private val delayTimeInMs = listOf(15000L)
+    private val errorChance = 90
+    private val mockedReasons = listOf(
         "saldo insuficiente",
         "fraude suspeita",
         "limite excedido",
@@ -25,14 +26,21 @@ class ProcessPayment(
 
         delay(delayTime)
 
-        return if (shouldFail()) {
+        if (shouldFail()) {
             println("Houve falha na processamento do pedido ${event.orderId}")
-            val event = PaymentProcessedEvent(
-                paymentId = UUID.randomUUID(),
+            val payment = Payment.create(
                 orderId = event.orderId,
+                amount = event.totalAmount,
                 status = PaymentStatus.REJECTED,
-                processedAt = Instant.now(),
+                currency = event.currency,
                 reason = mockedReasons.random()
+            )
+            val event = PaymentProcessedEvent(
+                paymentId = payment.paymentId,
+                orderId = event.orderId,
+                status = payment.status,
+                processedAt = payment.processedAt,
+                reason = payment.reason
             )
             publisher.publish(
                 exchange = "payment",
@@ -40,14 +48,22 @@ class ProcessPayment(
                 payload = event,
                 serializer = PaymentProcessedEvent.serializer()
             )
+            paymentRepository.save(payment)
         } else {
             println("Pedido ${event.orderId} processado com sucesso após ${delayTime}ms")
-            val event = PaymentProcessedEvent(
-                paymentId = UUID.randomUUID(),
+            val payment = Payment.create(
                 orderId = event.orderId,
+                amount = event.totalAmount,
                 status = PaymentStatus.APPROVED,
-                processedAt = Instant.now(),
+                currency = event.currency,
                 reason = null
+            )
+            val event = PaymentProcessedEvent(
+                paymentId = payment.paymentId,
+                orderId = event.orderId,
+                status = payment.status,
+                processedAt = payment.processedAt,
+                reason = payment.reason
             )
             publisher.publish(
                 exchange = "payment",
@@ -55,6 +71,7 @@ class ProcessPayment(
                 payload = event,
                 serializer = PaymentProcessedEvent.serializer()
             )
+            paymentRepository.save(payment)
         }
     }
 
