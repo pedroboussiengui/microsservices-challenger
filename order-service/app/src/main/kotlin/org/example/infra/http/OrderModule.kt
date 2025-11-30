@@ -9,11 +9,18 @@ import io.ktor.server.plugins.requestvalidation.ValidationResult
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.example.application.events.CreateOrderEvent
+import org.example.application.events.PaymentProcessedEvent
 import org.example.application.usecase.CreateOrder
 import org.example.application.usecase.CreateOrderRequest
 import org.example.application.usecase.OrderItemDto
 import org.example.application.usecase.RetrieveOrderById
+import org.example.application.usecase.UpdateOrder
 import org.example.infra.database.PostgresOrderRepository
+import org.example.infra.messaging.RabbitMessageConsumer
 import org.example.infra.messaging.RabbitMessagePublisher
 import org.valiktor.ConstraintViolationException
 import org.valiktor.functions.isNotEmpty
@@ -66,10 +73,12 @@ fun Application.orderModule() {
     }
     val connection = factory.newConnection()
     val publisher = RabbitMessagePublisher(connection)
+    val consumer = RabbitMessageConsumer(connection)
 
     val orderRepository = PostgresOrderRepository()
     val createOrderUseCase = CreateOrder(orderRepository, publisher)
     val retrieveOrderById = RetrieveOrderById(orderRepository)
+    val updateOrder = UpdateOrder(orderRepository)
 
     routing {
         route("/internal/orders") {
@@ -86,6 +95,20 @@ fun Application.orderModule() {
                 val response = retrieveOrderById.execute(orderId)
                 call.respond(HttpStatusCode.OK, response)
             }
+        }
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+        consumer.consume(
+            queue = "payment.approved.queue",
+            serializer = PaymentProcessedEvent.serializer()
+        ) { event, headers ->
+            updateOrder.execute(event, headers)
+        }
+        consumer.consume(
+            queue = "payment.rejected.queue",
+            serializer = PaymentProcessedEvent.serializer()
+        ) { event, headers ->
+            updateOrder.execute(event, headers)
         }
     }
 }

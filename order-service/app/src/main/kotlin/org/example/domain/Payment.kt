@@ -4,9 +4,9 @@ import java.time.Instant
 import java.util.*
 
 class Payment(
-    val payment: UUID,
-    val paymentStatus: PaymentStatus,
-    val processedAt: Instant
+    val payment: UUID?,
+    val paymentStatus: PaymentStatus?,
+    val processedAt: Instant?
 ) {
 }
 

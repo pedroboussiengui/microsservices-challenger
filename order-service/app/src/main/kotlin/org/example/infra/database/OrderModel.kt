@@ -15,9 +15,9 @@ object OrderModel : Table("order_service.orders") {
     val status = enumeration("status", OrderStatus::class)
     val createdAt = timestamp("created_at")
     val updatedAt = timestamp("updated_at").nullable()
-    val paymentId = uuid("payment_id")
-    val paymentStatus = enumeration("payment_status", PaymentStatus::class)
-    val processedAt = timestamp("processed_at")
+    val paymentId = uuid("payment_id").nullable()
+    val paymentStatus = enumeration("payment_status", PaymentStatus::class).nullable()
+    val processedAt = timestamp("processed_at").nullable()
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -48,11 +48,13 @@ class CreateOrder(
                 unitPrice = it.unitPrice
             )
         }
-        val paymentResponse = OrderPaymentDto(
-            payment = order.payment.payment,
-            paymentStatus = order.payment.paymentStatus,
-            processedAt = order.payment.processedAt
-        )
+        val paymentResponse = if (order.payment != null) {
+            OrderPaymentDto(
+                payment = order.payment!!.payment,
+                paymentStatus = order.payment!!.paymentStatus,
+                processedAt = order.payment!!.processedAt
+            )
+        } else null
         return CreteOrderResponse(
             order.id,
             order.requestId,
@@ -87,10 +89,10 @@ data class OrderItemDto(
 @Serializable
 class OrderPaymentDto(
     @Serializable(with = UUIDSerializer::class)
-    val payment: UUID,
-    val paymentStatus: PaymentStatus,
+    val payment: UUID?,
+    val paymentStatus: PaymentStatus?,
     @Serializable(with = InstantSerializer::class)
-    val processedAt: Instant
+    val processedAt: Instant?
 )
 
 @Serializable
@@ -109,5 +111,5 @@ data class CreteOrderResponse(
     var createdAt: Instant,
     @Serializable(with = InstantSerializer::class)
     var updatedAt: Instant?,
-    var payment: OrderPaymentDto
+    var payment: OrderPaymentDto?
 )

@@ -13,7 +13,7 @@ class Order(
     var status: OrderStatus,
     var createdAt: Instant,
     var updatedAt: Instant?,
-    var payment: Payment
+    var payment: Payment?
 ) {
     companion object {
         fun create(
@@ -32,11 +32,7 @@ class Order(
                 OrderStatus.PENDING,
                 Instant.now(),
                 null,
-                Payment(
-                    UUID.randomUUID(),
-                    PaymentStatus.PENDING,
-                    Instant.now()
-                )
+                null
             )
         }
     }

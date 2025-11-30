@@ -8,6 +8,9 @@
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor.jvm)
+
+    kotlin("plugin.serialization") version "2.2.20"
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -26,6 +29,14 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+
+    implementation("io.ktor:ktor-server-core-jvm")
+    implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+
+    implementation("ch.qos.logback:logback-classic:1.5.18")
+
+    implementation("com.rabbitmq:amqp-client:5.27.1")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

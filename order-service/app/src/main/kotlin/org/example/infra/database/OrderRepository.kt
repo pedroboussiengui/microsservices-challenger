@@ -25,9 +25,9 @@ class PostgresOrderRepository : OrderRepository {
                 it[status] = order.status
                 it[createdAt] = order.createdAt
                 it[updatedAt] = order.updatedAt
-                it[paymentId] = order.payment.payment
-                it[paymentStatus] = order.payment.paymentStatus
-                it[processedAt] = order.payment.processedAt
+                it[paymentId] = order.payment?.payment
+                it[paymentStatus] = order.payment?.paymentStatus
+                it[processedAt] = order.payment?.processedAt
             }
             order.items.forEach { item ->
                 OrderItemModel.insert {
@@ -65,11 +65,15 @@ class PostgresOrderRepository : OrderRepository {
                 status = orderRow[OrderModel.status],
                 createdAt = orderRow[OrderModel.createdAt],
                 updatedAt = orderRow[OrderModel.updatedAt],
-                payment = Payment(
-                    payment = orderRow[OrderModel.paymentId],
-                    paymentStatus = orderRow[OrderModel.paymentStatus],
-                    processedAt = orderRow[OrderModel.processedAt]
-                )
+                payment = orderRow[OrderModel.paymentId]?.let { paymentId ->
+                    Payment(
+                        payment = paymentId,
+                        paymentStatus = orderRow[OrderModel.paymentStatus],
+                        processedAt = orderRow[OrderModel.processedAt]
+                    )
+                } ?: run {
+                    null
+                }
             )
         }
     }

@@ -4,6 +4,7 @@
 [versions]
 guava = "33.4.6-jre"
 junit-jupiter = "5.12.1"
+ktor-version = "3.3.2"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -11,3 +12,4 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.2.20" }
+ktor-jvm = { id = "io.ktor.plugin", version.ref = "ktor-version" }

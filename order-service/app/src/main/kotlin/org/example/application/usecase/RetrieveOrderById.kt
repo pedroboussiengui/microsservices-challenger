@@ -18,11 +18,13 @@ class RetrieveOrderById(
                 unitPrice = it.unitPrice
             )
         }
-        val paymentResponse = OrderPaymentDto(
-            payment = order.payment.payment,
-            paymentStatus = order.payment.paymentStatus,
-            processedAt = order.payment.processedAt
-        )
+        val paymentResponse = if (order.payment != null) {
+            OrderPaymentDto(
+                payment = order.payment!!.payment,
+                paymentStatus = order.payment!!.paymentStatus,
+                processedAt = order.payment!!.processedAt
+            )
+        } else null
         return CreteOrderResponse(
             order.id,
             order.requestId,

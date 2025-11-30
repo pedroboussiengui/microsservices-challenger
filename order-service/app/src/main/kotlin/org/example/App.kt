@@ -29,6 +29,7 @@ fun main() {
 
     transaction {
         exec("CREATE SCHEMA IF NOT EXISTS order_service;")
+//        SchemaUtils.drop(OrderItemModel, OrderModel)
         SchemaUtils.create(OrderModel, OrderItemModel)
     }
 
