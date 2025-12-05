@@ -3,12 +3,12 @@ package org.example.infra.database
 import org.jetbrains.exposed.v1.jdbc.Database
 
 object DatabaseConnection {
-    fun init() {
+    fun init(url: String, user: String, password: String) {
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/microservices",
+            url = url,
             driver = "org.postgresql.Driver",
-            user = "postgres",
-            password = "postgres"
+            user = user,
+            password = password
         )
     }
 }

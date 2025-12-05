@@ -20,19 +20,29 @@ fun Application.module() {
             explicitNulls = false
         })
     }
-    configureStatusPages()
-    orderModule()
-}
-
-fun main() {
-    DatabaseConnection.init()
-
+    DatabaseConnection.init(
+        "jdbc:postgresql://localhost:5432/microservices",
+        "postgres",
+        "postgres"
+    )
     transaction {
         exec("CREATE SCHEMA IF NOT EXISTS order_service;")
-//        SchemaUtils.drop(OrderItemModel, OrderModel)
+        SchemaUtils.drop(OrderItemModel, OrderModel)
         SchemaUtils.create(OrderModel, OrderItemModel)
     }
 
+    configureStatusPages()
+    orderModule()
+
+//    monitor.subscribe(ApplicationStopped) { application ->
+//        application.environment.log.info("Server is stopped")
+//        // Release resources and unsubscribe from events
+//        monitor.unsubscribe(ApplicationStarted) {}
+//        monitor.unsubscribe(ApplicationStopped) {}
+//    }
+}
+
+fun main() {
     embeddedServer(Netty, port = 8080, module = Application::module)
         .start(wait = true)
 }

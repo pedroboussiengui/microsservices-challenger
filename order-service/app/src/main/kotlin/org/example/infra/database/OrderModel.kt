@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 
 object OrderModel : Table("order_service.orders") {
     val id = uuid("id")
-    val requestId = uuid("request_id")
+    val requestId = uuid("request_id").uniqueIndex()
     val customerId = uuid("customer_id")
     val totalAmount = double("total_amount")
     val currency = enumerationByName("currency_type", 3, CurrenyType::class)
