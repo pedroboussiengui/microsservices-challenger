@@ -1,12 +1,14 @@
+# desabilita a autenticação
 auth_enabled: false
 
+# host do loki
 server:
   http_listen_port: 3100
 
 ingester:
-  wal:
-    enabled: true
-    dir: /loki/wal
+  wal:                # write-ahead log
+    enabled: true     # grava os logs em escrita
+    dir: /loki/wal    # caminho do logs salvos em escrita
   lifecycler:
     address: 127.0.0.1
     ring:
@@ -16,9 +18,9 @@ ingester:
 
 schema_config:
   configs:
-  - from: 2022-01-01
-    store: boltdb-shipper
-    object_store: filesystem
+  - from: 1970-01-01 # a partir de qual data esse store acontece
+    store: boltdb-shipper  # estratégia que guarda os chunks no storage configurado
+    object_store: filesystem # guarda no filesystem, mas poderia ser no S3, MinIO, etc
     schema: v12
     index:
       prefix: index_
