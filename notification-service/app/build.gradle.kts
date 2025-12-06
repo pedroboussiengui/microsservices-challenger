@@ -29,15 +29,22 @@ dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
 
+    implementation("io.ktor:ktor-server-core-jvm:3.3.2")
+    implementation("io.ktor:ktor-server-netty-jvm:3.3.2")
+    implementation("io.ktor:ktor-server-call-logging:3.3.2")
+
     implementation("io.opentelemetry:opentelemetry-sdk:${otelVersion}")
     implementation("io.opentelemetry:opentelemetry-sdk-logs:${otelVersion}")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp:${otelVersion}")
-
-    implementation("ch.qos.logback:logback-classic:1.5.19")
-    implementation("io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.22.0-alpha")
-
     implementation("io.opentelemetry:opentelemetry-api-logs:1.26.0-alpha")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp-logs:1.26.0-alpha")
+    implementation("io.opentelemetry:opentelemetry-exporter-logging:1.56.0")
+
+//    implementation("org.slf4j:slf4j-simple:2.0.17")
+    implementation("ch.qos.logback:logback-classic:1.5.19")
+
+//    implementation("io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.22.0-alpha")
+
+//    implementation("io.opentelemetry:opentelemetry-exporter-otlp-logs:1.26.0-alpha")
 
 //    implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.37.0")
 //    implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.37.0-alpha")
