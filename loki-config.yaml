@@ -1,0 +1,35 @@
+# desabilita a autenticação
+auth_enabled: false
+
+# host do loki
+server:
+  http_listen_port: 3100
+
+ingester:
+  wal:                # write-ahead log
+    enabled: true     # grava os logs em escrita
+    dir: /loki/wal    # caminho do logs salvos em escrita
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+    final_sleep: 0s
+
+schema_config:
+  configs:
+  - from: 1970-01-01 # a partir de qual data esse store acontece
+    store: boltdb-shipper  # estratégia que guarda os chunks no storage configurado
+    object_store: filesystem # guarda no filesystem, mas poderia ser no S3, MinIO, etc
+    schema: v12
+    index:
+      prefix: index_
+      period: 24h
+
+storage_config:
+  filesystem:
+    directory: /loki/chunks
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem

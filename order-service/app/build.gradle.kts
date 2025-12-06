@@ -52,6 +52,9 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.8")
 
     implementation("com.rabbitmq:amqp-client:5.27.1")
+
+    implementation("io.opentelemetry:opentelemetry-sdk:1.56.0")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.56.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

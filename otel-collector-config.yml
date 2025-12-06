@@ -1,0 +1,35 @@
+# onde o app envia os dados
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+# junta e envia os dados em lotes
+processors:
+  batch: {}
+
+# para onde o collector envia os dados recebidos (loki, tempo, prometheus, etc)
+exporters:
+  logging:
+    loglevel: debug
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+
+# pipelines de fluxo de dados
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, loki]
+
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
