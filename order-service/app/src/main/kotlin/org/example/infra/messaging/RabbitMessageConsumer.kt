@@ -4,20 +4,22 @@ import com.rabbitmq.client.AMQP
 import com.rabbitmq.client.Connection
 import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import org.example.application.port.MessageConsumer
+import java.io.Closeable
 
 class RabbitMessageConsumer(
-    private val connection: Connection
-) : MessageConsumer {
+    connection: Connection
+) : MessageConsumer, CoroutineScope, Closeable {
 
     private val channel = connection.createChannel()
     private val json = Json {
         ignoreUnknownKeys = true
     }
+    private val job = SupervisorJob()
+    override val coroutineContext = job + Dispatchers.IO
 
     override suspend fun <T : Any> consume(
         queue: String,
@@ -38,7 +40,7 @@ class RabbitMessageConsumer(
                     val headers = properties?.headers ?: emptyMap()
 
                     // executa seu handler suspending
-                    GlobalScope.launch {
+                    launch {
                         handler(message, headers)
                         channel.basicAck(envelope!!.deliveryTag, false)
                     }
@@ -51,5 +53,10 @@ class RabbitMessageConsumer(
 
         println("📥 Waiting for messages from $queue ...")
         channel.basicConsume(queue, false, consumer)
+    }
+
+    override fun close() {
+        job.cancel()
+        channel.close()
     }
 }

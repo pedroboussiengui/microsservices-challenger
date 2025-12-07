@@ -1,18 +1,14 @@
 package org.example
 
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
-import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.serialization.json.Json
-import org.example.infra.database.DatabaseConnection
 import org.example.infra.database.OrderItemModel
 import org.example.infra.database.OrderModel
+import org.example.infra.di.configureDI
 import org.example.infra.http.configureStatusPages
 import org.example.infra.http.orderModule
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
@@ -24,26 +20,14 @@ fun Application.module() {
             explicitNulls = false
         })
     }
-    DatabaseConnection.init(
-        "jdbc:postgresql://localhost:5432/microservices",
-        "postgres",
-        "postgres"
-    )
+    configureDI()
+    configureStatusPages()
+    orderModule()
     transaction {
         exec("CREATE SCHEMA IF NOT EXISTS order_service;")
         SchemaUtils.drop(OrderItemModel, OrderModel)
         SchemaUtils.create(OrderModel, OrderItemModel)
     }
-
-    configureStatusPages()
-    orderModule()
-
-//    monitor.subscribe(ApplicationStopped) { application ->
-//        application.environment.log.info("Server is stopped")
-//        // Release resources and unsubscribe from events
-//        monitor.unsubscribe(ApplicationStarted) {}
-//        monitor.unsubscribe(ApplicationStopped) {}
-//    }
 }
 
 fun main() {

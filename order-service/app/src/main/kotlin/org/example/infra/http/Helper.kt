@@ -14,7 +14,6 @@ fun Parameters.uuid(input: String): UUID? =
         }
     }
 
-
 fun validationErrors(e: ConstraintViolationException): List<String> =
     e.constraintViolations
         .mapToMessage(baseName = "messages", locale = Locale.ENGLISH)

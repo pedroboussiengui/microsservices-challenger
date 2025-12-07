@@ -21,12 +21,7 @@ class RabbitMessagePublisher(
         headers: Map<String, String>
     ) {
         withContext(Dispatchers.IO) {
-            val channel = connection.createChannel()
-            channel.exchangeDeclare(exchange, "topic", true)
-            channel.queueDeclare("order.created.queue", true, false, false, null)
-            channel.queueBind("order.created.queue", "order", "order.created")
-
-            try {
+            connection.createChannel().use { channel ->
                 val body = json.encodeToString(serializer, payload)
                     .toByteArray(StandardCharsets.UTF_8)
 
@@ -41,9 +36,6 @@ class RabbitMessagePublisher(
                     routingKey,
                     props,
                     body
-                )
-            } finally {
-                channel.close(
                 )
             }
         }

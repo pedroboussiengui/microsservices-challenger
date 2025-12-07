@@ -20,8 +20,14 @@ import org.example.application.usecase.OrderItemDto
 import org.example.application.usecase.RetrieveOrderById
 import org.example.application.usecase.UpdateOrder
 import org.example.infra.database.PostgresOrderRepository
+import org.example.infra.di.createOrderUseCase
+import org.example.infra.di.rabbitMqConsumerKey
+import org.example.infra.di.rabbitMqPublisherKey
+import org.example.infra.di.retrieveOrderByIdUseCase
+import org.example.infra.di.updateOrderKey
 import org.example.infra.messaging.RabbitMessageConsumer
 import org.example.infra.messaging.RabbitMessagePublisher
+import org.example.infra.messaging.RabbitMqConfig
 import org.valiktor.ConstraintViolationException
 import org.valiktor.functions.isNotEmpty
 import org.valiktor.functions.isNotNull
@@ -65,20 +71,21 @@ fun Application.orderModule() {
         }
     }
 
-    val factory = ConnectionFactory().apply {
-        host = "localhost"
-        port = 5672
-        username = "guest"
-        password = "guest"
-    }
-    val connection = factory.newConnection()
-    val publisher = RabbitMessagePublisher(connection)
-    val consumer = RabbitMessageConsumer(connection)
-
-    val orderRepository = PostgresOrderRepository()
-    val createOrderUseCase = CreateOrder(orderRepository, publisher)
-    val retrieveOrderById = RetrieveOrderById(orderRepository)
-    val updateOrder = UpdateOrder(orderRepository)
+//    val factory = ConnectionFactory().apply {
+//        host = "localhost"
+//        port = 5672
+//        username = "guest"
+//        password = "guest"
+//    }
+//    val connection = factory.newConnection()
+//    RabbitMqConfig(connection).setup()
+//    val publisher = RabbitMessagePublisher(connection)
+//    val consumer = RabbitMessageConsumer(connection)
+//
+//    val orderRepository = PostgresOrderRepository()
+//    val createOrderUseCase = CreateOrder(orderRepository, publisher)
+//    val retrieveOrderById = RetrieveOrderById(orderRepository)
+//    val updateOrder = UpdateOrder(orderRepository)
 
     routing {
         route("/internal/orders") {
@@ -86,17 +93,21 @@ fun Application.orderModule() {
                 val request = call.receive<CreateOrderRequest>()
                 val customerId = call.request.headers["x-customer-id"]
                     ?: throw BadRequestException("Customer ID header is missing")
-                val response = createOrderUseCase.execute(request, UUID.fromString(customerId))
+                val service = application.createOrderUseCase
+                val response = service.execute(request, UUID.fromString(customerId))
                 call.respond(HttpStatusCode.Created, response)
             }
             get("/{orderId}") {
                 val orderId = call.parameters.uuid("orderId")
                     ?: throw BadRequestException("Order ID must be a valid UUID")
-                val response = retrieveOrderById.execute(orderId)
+                val service = application.retrieveOrderByIdUseCase
+                val response = service.execute(orderId)
                 call.respond(HttpStatusCode.OK, response)
             }
         }
     }
+    val consumer = attributes[rabbitMqConsumerKey]
+    val updateOrder = attributes[updateOrderKey]
     CoroutineScope(Dispatchers.IO).launch {
         consumer.consume(
             queue = "payment.approved.queue",
